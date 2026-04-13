@@ -1,13 +1,24 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native"
 import { audioService } from "@/services/audio.service";
-import { transcriptionService } from "@/services/transcription.service";
-import { parserService } from "@/services/parser.service";
 import { recordService } from "@/services/record.service";
+import { syncService } from "@/services/sync.service";
+import { useRouter } from "expo-router";
+import { recordingState } from "@/store/recording.state";
 
 export default function Record() {
-  const [isRecording, setIsRecording] = useState(false);
+  const router = useRouter();
+  const [isRecording, setIsRecording] = useState(recordingState.get());
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isStopping, setIsStopping] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = recordingState.subscribe((value) => {
+      setIsRecording(value);
+    })
+
+    return unsubscribe;
+  }, []);
 
   const handleStart = async () => {
     if (isRecording) return;
@@ -26,17 +37,21 @@ export default function Record() {
   }
 
   const handleStop = async () => {
+    if (isStopping) return;
+
+    setIsStopping(true);
     try {
       setIsProcessing(true);
 
-      const record = recordService.stopAndProcess();
+      await recordService.stopAndProcess();
+      await syncService.syncAll();
 
-      console.log('Record saved: ', record);
     } catch(e) {
       console.log(`Error: ${e}`)
     } finally {
       setIsProcessing(false);
       setIsRecording(false);
+      setIsStopping(false);
     }
   }
 

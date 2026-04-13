@@ -167,3 +167,32 @@ AsyncStorage was chosen as a simple and reliable solution to implement offline-f
 **Decision:**
 The pipeline was extracted into a dedicated service to maintain separation of concerns and support future scalability.
 ```
+
+### 7. Sync Queue — Offline to Online Synchronization
+
+**Approach:** Client-side sync queue with status tracking (`pending → synced / failed`)
+
+**What it does:**
+
+- Stores records locally with `pending` status
+- Attempts to send data to a remote API (simulated)
+- Updates record status based on result:
+  - `synced` on success
+  - `failed` on error
+
+**Why:**
+
+- Enables offline-first behavior
+- Prevents data loss when network is unavailable
+- Provides visibility into sync state
+- Lays foundation for background synchronization
+
+**How it works:**
+
+1. Record is created and saved locally (`pending`)
+2. Sync process filters all `pending` records
+3. Each record is sent to API
+4. Status is updated based on response
+
+**Decision:**
+A simulated API with random failures was chosen to better reflect real-world conditions and validate sync robustness.

@@ -1,6 +1,8 @@
+import { recordingState } from "@/store/recording.state";
 import { Audio } from "expo-av";
 
 let recording: Audio.Recording | null = null;
+let isReady = false;
 
 export const audioService = {
   async requestPermission() {
@@ -9,6 +11,8 @@ export const audioService = {
   },
 
   async startRecording() {
+    isReady = false;
+
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: true,
       playsInSilentModeIOS: true,
@@ -19,13 +23,19 @@ export const audioService = {
     );
 
     recording = result.recording;
+    recordingState.set(true);
+    isReady = true;
   },
 
   async stopRecording() {
-    if (!recording) return null;
+    if (!recording || !isReady) {
+      console.warn("Recording not ready yet");
+      return null;
+    }
 
     await recording.stopAndUnloadAsync();
     const uri = recording.getURI();
+    recordingState.set(false);
 
     recording = null;
 

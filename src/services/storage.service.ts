@@ -17,5 +17,14 @@ export const storageService = {
     const records: RecordItem[] = await this.getAll();
     records.push(record);
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  },
+
+  async update(updatedRecord: RecordItem) {
+    const records = await this.getAll();
+
+    const updated = records.map((r) =>
+      r.id === updatedRecord.id ? updatedRecord : r
+    );
+    await this.saveAll(updated);
   }
 };

@@ -1,5 +1,6 @@
 import { storageService } from "@/services/storage.service";
 import { RecordItem } from "@/types/record";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { View, Text, Pressable, FlatList } from "react-native";
@@ -24,6 +25,16 @@ export default function Home() {
       <Text style={{ fontSize: 24, fontWeight: "600" }}>
         Voice Inventory
       </Text>
+      <Pressable
+        onPress={async () => {
+          await AsyncStorage.clear();
+          console.log("Storage cleared");
+          loadRecords();
+        }}
+        style={{ marginTop: 20 }}
+      >
+        <Text>Clear Storage</Text>
+      </Pressable>
       <Pressable
         onPress={() => router.push("/record")}
         style={{
