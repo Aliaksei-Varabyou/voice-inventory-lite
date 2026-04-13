@@ -95,3 +95,75 @@ Service layer introduced early to maintain clean separation of concerns.
 
 **Decision:**
 Hybrid structure chosen to balance simplicity and scalability.
+
+### 5. Storage — AsyncStorage (Offline-first)
+
+**Library:** `@react-native-async-storage/async-storage`
+
+**Why:**
+
+- Simple key-value storage available out of the box in Expo
+- No native setup required
+- Sufficient for MVP and prototyping
+- Fast local data access without network dependency
+
+**Use case in this project:**
+
+- Store all records locally
+- Each record is saved immediately after processing
+- Data is available even when offline
+
+**Data model:**
+
+```ts
+type RecordItem = {
+  id: string;
+  audioUri?: string;
+  rawText?: string;
+  parsedItems?: { item: string; quantity: number }[];
+  status: "pending" | "synced" | "failed";
+  createdAt: number;
+};
+
+**Offline-first approach:**
+- Records are created and persisted locally immediately after processing
+- `pending` status indicates data not yet synchronized
+- The system is designed to support background sync in the next steps
+
+**Alternatives considered:**
+- SQLite
+  → better for large datasets, but adds complexity for MVP
+- Realm
+  → powerful but overkill for this use case
+- Remote-only storage
+  → breaks offline-first UX
+
+**Decision:**
+AsyncStorage was chosen as a simple and reliable solution to implement offline-first behavior at an early stage.
+
+---
+
+### 6. Recording Pipeline — Service Orchestration
+
+**Approach:** Dedicated `recordService` for handling the full recording flow
+
+**Responsibilities:**
+- Stop recording
+- Perform transcription (mocked)
+- Parse text into structured data
+- Create a record entity
+- Persist data to storage
+
+**Why:**
+- Isolates business logic from UI
+- Keeps `RecordScreen` simple and focused
+- Makes the pipeline reusable
+- Improves testability and extensibility
+
+**Alternatives considered:**
+- Keeping logic inside the component
+  → quickly becomes hard to read and maintain
+
+**Decision:**
+The pipeline was extracted into a dedicated service to maintain separation of concerns and support future scalability.
+```

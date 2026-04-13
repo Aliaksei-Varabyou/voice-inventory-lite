@@ -3,15 +3,11 @@ import { Pressable, Text, View } from "react-native"
 import { audioService } from "@/services/audio.service";
 import { transcriptionService } from "@/services/transcription.service";
 import { parserService } from "@/services/parser.service";
+import { recordService } from "@/services/record.service";
 
 export default function Record() {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const stopAllProcesses = () => {
-    setIsProcessing(false);
-    setIsRecording(false);
-  }
 
   const handleStart = async () => {
     if (isRecording) return;
@@ -30,24 +26,18 @@ export default function Record() {
   }
 
   const handleStop = async () => {
-    setIsProcessing(true);
+    try {
+      setIsProcessing(true);
 
-    const uri = await audioService.stopRecording();
-    if (!uri) return;
+      const record = recordService.stopAndProcess();
 
-    const text = await transcriptionService.transcribe(uri);
-    if (!text || typeof text !== "string") {
-      console.warn("Invalid transcription result");
-      stopAllProcesses();
-      return;
+      console.log('Record saved: ', record);
+    } catch(e) {
+      console.log(`Error: ${e}`)
+    } finally {
+      setIsProcessing(false);
+      setIsRecording(false);
     }
-    const parsed = parserService.parse(text);
-
-    console.log('Recorded file - ', uri);
-    console.log('Transcribed text - ', text);
-    console.log('Parsed items - ', parsed);
-
-    stopAllProcesses();
   }
 
   return (
