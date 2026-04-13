@@ -124,13 +124,16 @@ type RecordItem = {
   status: "pending" | "synced" | "failed";
   createdAt: number;
 };
+```
 
 **Offline-first approach:**
+
 - Records are created and persisted locally immediately after processing
 - `pending` status indicates data not yet synchronized
 - The system is designed to support background sync in the next steps
 
 **Alternatives considered:**
+
 - SQLite
   → better for large datasets, but adds complexity for MVP
 - Realm
@@ -148,6 +151,7 @@ AsyncStorage was chosen as a simple and reliable solution to implement offline-f
 **Approach:** Dedicated `recordService` for handling the full recording flow
 
 **Responsibilities:**
+
 - Stop recording
 - Perform transcription (mocked)
 - Parse text into structured data
@@ -155,18 +159,19 @@ AsyncStorage was chosen as a simple and reliable solution to implement offline-f
 - Persist data to storage
 
 **Why:**
+
 - Isolates business logic from UI
 - Keeps `RecordScreen` simple and focused
 - Makes the pipeline reusable
 - Improves testability and extensibility
 
 **Alternatives considered:**
+
 - Keeping logic inside the component
   → quickly becomes hard to read and maintain
 
 **Decision:**
 The pipeline was extracted into a dedicated service to maintain separation of concerns and support future scalability.
-```
 
 ### 7. Sync Queue — Offline to Online Synchronization
 
